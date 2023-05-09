@@ -1,5 +1,7 @@
 package com.example.littlelemon.composables
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -30,17 +32,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.littlelemon.Colors
+import com.example.littlelemon.Destinations
 import com.example.littlelemon.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OnBoarding() {
+fun OnBoarding(navController: NavHostController) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,6 +58,10 @@ fun OnBoarding() {
         var firstName by remember { mutableStateOf("") }
         var lastName by remember { mutableStateOf("") }
         var email by remember { mutableStateOf("") }
+
+        val context = LocalContext.current
+        val sharedPreference = context.getSharedPreferences("user", Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
 
         Image(
             painter = painterResource(id = R.drawable.logo),
@@ -156,7 +167,20 @@ fun OnBoarding() {
 
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+
+                    if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()) {
+                        Toast.makeText(context, "Registration unsuccessful. Please enter all data.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        editor.putString("first_name", firstName).apply()
+                        editor.putString("last_name", lastName).apply()
+                        editor.putString("email", email).apply()
+
+                        Toast.makeText(context, "Registration successful!", Toast.LENGTH_SHORT).show()
+
+                        navController.navigate(Destinations.HomeScreen.route)
+                    }
+                },
                 modifier = Modifier
                     .padding(24.dp)
                     .fillMaxWidth(),
@@ -176,5 +200,5 @@ fun OnBoarding() {
 @Preview(showBackground = true)
 @Composable
 fun OnBoardingPreview() {
-    OnBoarding()
+    OnBoarding(rememberNavController())
 }
