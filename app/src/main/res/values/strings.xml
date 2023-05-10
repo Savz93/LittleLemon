@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">LittleLemon</string>
+    <string name="first_name">first_name</string>
+    <string name="last_name">last_name</string>
+    <string name="email">email</string>
+    <string name="little_lemon">Little Lemon</string>
+    <string name="chicago">Chicago</string>
+    <string name="description_one_hero_section">
+        We are a family owned Mediterranean restaurant, focused on traditional recipes served with a modern twist
+    </string>
 </resources>

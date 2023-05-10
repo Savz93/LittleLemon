@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -165,16 +166,18 @@ fun OnBoarding(navController: NavHostController) {
             singleLine = true
         )
 
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom
+        ) {
             Button(
                 onClick = {
-
                     if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()) {
                         Toast.makeText(context, "Registration unsuccessful. Please enter all data.", Toast.LENGTH_SHORT).show()
                     } else {
-                        editor.putString("first_name", firstName).apply()
-                        editor.putString("last_name", lastName).apply()
-                        editor.putString("email", email).apply()
+                        editor.putString(R.string.first_name.toString(), firstName).apply()
+                        editor.putString(R.string.last_name.toString(), lastName).apply()
+                        editor.putString(R.string.email.toString(), email).apply()
 
                         Toast.makeText(context, "Registration successful!", Toast.LENGTH_SHORT).show()
 
