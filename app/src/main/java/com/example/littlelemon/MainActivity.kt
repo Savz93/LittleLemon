@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -141,7 +142,17 @@ fun Home(navHostController: NavHostController) {
     }
 
     val databaseMenuItems by database.menuItemDao().getAll().observeAsState(emptyList())
-    val menuItems = if (search.isNotEmpty()) databaseMenuItems.filter { it.title.contains(search, ignoreCase = true) } else databaseMenuItems
+    var isSortedByCategory by remember { mutableStateOf(false) }
+    var sortByCategoryName by remember { mutableStateOf("") }
+    var menuItems =
+        if (search.isNotEmpty())
+            databaseMenuItems.filter { it.title.contains(search, ignoreCase = true) }
+        else if (isSortedByCategory)
+            databaseMenuItems.filter {
+                it.category.lowercase() == sortByCategoryName.lowercase()
+            }
+        else
+            databaseMenuItems
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -238,7 +249,8 @@ fun Home(navHostController: NavHostController) {
                         contentDescription = "Search Icon",
                         tint = Color.White
                     )
-                }
+                },
+                singleLine = true
             )
         }
 
@@ -258,8 +270,32 @@ fun Home(navHostController: NavHostController) {
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(dishCategories) {
-                    dishCategory(dishCategory = it)
+                items(dishCategories) { dishCategory ->
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier
+                            .width(80.dp)
+                            .height(36.dp)
+                            .clickable {
+                                isSortedByCategory = true
+                                sortByCategoryName = dishCategory
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.LightGray),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = dishCategory,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = Colors.primaryGreen
+                            )
+                        }
+                    }
                 }
             }
 
@@ -326,95 +362,9 @@ fun Home(navHostController: NavHostController) {
                 }
             )
         }
-
-//        MenuItemsList(items = menuItems)
     }
 
 
-}
-
-@Composable
-fun dishCategory(dishCategory: String) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier
-            .width(80.dp)
-            .height(36.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.LightGray),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = dishCategory,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = Colors.primaryGreen
-            )
-        }
-    }
-}
-
-@Composable
-private fun MenuItemsList(items: List<MenuItemRoom>) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxHeight()
-    ) {
-        items(
-            items = items,
-            itemContent = { menuItem ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Column(modifier = Modifier) {
-                        Text(
-                            modifier = Modifier.padding(start = 24.dp, bottom = 16.dp, top = 16.dp),
-                            text = menuItem.title,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth(0.65f)
-                                .padding(start = 24.dp, bottom = 12.dp),
-                            text = menuItem.description,
-                            color = Colors.primaryGreen,
-                            fontSize = 16.sp
-                        )
-                        Text(
-                            text = "$${menuItem.price}.00" ,
-                            modifier = Modifier.padding(bottom = 12.dp, start = 24.dp),
-                            color = Colors.primaryGreen,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-
-                    Image(
-                        painter = rememberGlidePainter(
-                            request = menuItem.image,
-                            previewPlaceholder = R.drawable.greek_salad
-                        ),
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .padding(end = 24.dp, start = 16.dp, top = 12.dp)
-                            .clip(RoundedCornerShape(12.dp)),
-                        contentDescription = "Food Image"
-                    )
-                }
-
-                Divider(modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                )
-            }
-        )
-    }
 }
 
 @Preview(showBackground = true)
@@ -423,9 +373,4 @@ fun HomePreview() {
     Home(rememberNavController())
 }
 
-@Preview(showBackground = true)
-@Composable
-fun dishCategoryPreview() {
-    dishCategory("Starters")
-}
 
